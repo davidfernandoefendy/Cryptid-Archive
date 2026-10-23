@@ -1,0 +1,861 @@
+# Cryptid-Archive
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arsip Kriptid - Portfolio Author & Dossier Fiksi Horor</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            blood: {
+              DEFAULT: '#8b0000',
+              500: '#991b1b',
+              600: '#7f1d1d',
+              700: '#450a0a',
+            },
+            darkvoid: '#07090e',
+            dossier: '#0d1117',
+            cardbg: '#111622',
+            parchment: '#d1d5db',
+            accentgold: '#d4af37'
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            mono: ['"Courier Prime"', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #07090e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #991b1b;
+    }
+
+    /* Ambient Fog Scanline Animation */
+    .scanlines {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+      );
+      background-size: 100% 4px;
+    }
+
+    /* Classified Stamp Effect */
+    .stamp-red {
+      border: 3px double #dc2626;
+      color: #ef4444;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 3px;
+      transform: rotate(-12deg);
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+      user-select: none;
+    }
+
+    /* Glows & Shadows */
+    .red-glow {
+      box-shadow: 0 0 20px rgba(153, 27, 27, 0.35);
+    }
+    .red-glow-hover:hover {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+      border-color: #ef4444;
+    }
+
+    /* Flickering Lamp Effect */
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      41.99% { opacity: 1; }
+      42% { opacity: 0.4; }
+      43% { opacity: 1; }
+      45% { opacity: 0.3; }
+      46% { opacity: 1; }
+      80% { opacity: 0.9; }
+      81% { opacity: 0.2; }
+      82% { opacity: 1; }
+    }
+    .flicker-text {
+      animation: flicker 6s infinite;
+    }
+  </style>
+</head>
+<body class="bg-darkvoid text-gray-300 font-sans min-h-screen selection:bg-blood-500 selection:text-white relative overflow-x-hidden">
+
+  <!-- Background Fog Canvas -->
+  <canvas id="fogCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+  <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-10 scanlines opacity-30"></div>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="sticky top-0 z-40 bg-darkvoid/90 backdrop-blur-md border-b border-blood-500/30 px-4 md:px-8 py-3 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded bg-blood-700/80 border border-blood-500 flex items-center justify-center text-red-500 group-hover:scale-105 transition">
+          <i class="fa-solid fa-skull text-lg"></i>
+        </div>
+        <div>
+          <span class="font-cinzel font-bold text-lg md:text-xl text-red-500 tracking-wider block leading-none">ARSIP KRIPTID</span>
+          <span class="font-mono text-[10px] text-gray-400 tracking-widest uppercase">Dark Fiction Universe</span>
+        </div>
+      </a>
+
+      <!-- Menu Links -->
+      <div class="hidden md:flex items-center space-x-6 text-sm font-mono tracking-wide">
+        <a href="#hero" class="hover:text-red-400 transition"><i class="fa-solid fa-terminal text-red-600 mr-1"></i>Beranda</a>
+        <a href="#author" class="hover:text-red-400 transition">Penulis</a>
+        <a href="#featured" class="hover:text-red-400 transition">Kasus Utama</a>
+        <a href="#catalog" class="hover:text-red-400 transition">Katalog Spesimen</a>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Ambient Sound Toggle -->
+        <button id="ambientToggleBtn" onclick="toggleAmbientSound()" class="p-2 px-3 rounded bg-gray-900 border border-gray-700 text-xs font-mono hover:border-red-500 text-gray-300 flex items-center gap-2 transition" title="Aktifkan Suasana Suara">
+          <i id="soundIcon" class="fa-solid fa-volume-xmark text-gray-500"></i>
+          <span id="soundText" class="hidden sm:inline">Audio: OFF</span>
+        </button>
+
+        <!-- Add Monster Button -->
+        <button onclick="openAddModal()" class="bg-blood-500 hover:bg-blood-600 text-white px-3 md:px-4 py-2 rounded text-xs font-mono uppercase tracking-wider font-bold border border-red-500 flex items-center gap-2 shadow-lg hover:shadow-red-900/50 transition">
+          <i class="fa-solid fa-plus"></i>
+          <span class="hidden sm:inline">Tambah Kriptid</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="relative z-20 max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-16">
+
+    <!-- HERO HEADER SECTION -->
+    <section id="hero" class="relative pt-6 pb-12 rounded-2xl bg-gradient-to-b from-dossier/80 to-darkvoid border border-gray-800 p-6 md:p-12 overflow-hidden shadow-2xl">
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-blood-700/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-3xl space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/80 border border-red-700/60 text-red-400 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          ARSIP DEPARTEMEN DOKUMEN FIKSI HOROR
+        </div>
+
+        <h1 class="font-cinzel text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+          Selamat Datang di <br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-amber-600 flicker-text">
+            Alam Fiksi Horor & Kriptid
+          </span>
+        </h1>
+
+        <p class="text-gray-400 text-base md:text-lg leading-relaxed">
+          Kumpulan berkas rahasia, laporan naratif, dan profil makhluk misterius ciptaan Penulis. Jelajahi dossier kriptid yang menghuni kegelapan hutan dan sudut-sudut bumi yang belum terjamah.
+        </p>
+
+        <!-- Search & Filter Controls -->
+        <div class="pt-4 space-y-3">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input type="text" id="searchInput" oninput="filterCatalog()" placeholder="Cari nama kriptid, lokasi, atau kata kunci..." 
+                     class="w-full pl-11 pr-4 py-3 bg-darkvoid/90 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition font-mono">
+            </div>
+
+            <!-- Category Filter Dropdown -->
+            <select id="categoryFilter" onchange="filterCatalog()" class="px-4 py-3 bg-darkvoid/90 border border-gray-700 rounded-lg text-sm text-gray-300 font-mono focus:outline-none focus:border-red-500 transition">
+              <option value="ALL">Semua Kategori</option>
+              <option value="Kriptid">Kriptid / UMA</option>
+              <option value="Monster">Monster / Entitas</option>
+              <option value="Urban Legend">Legenda Perkotaan</option>
+              <option value="Lore">Lore & Artefak</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTHOR PROFILE / ABOUT SECTION -->
+    <section id="author" class="bg-dossier/90 border border-gray-800 rounded-2xl p-6 md:p-10 relative shadow-xl">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Author Profile Card Left -->
+        <div class="lg:col-span-5 bg-cardbg border border-gray-800 rounded-xl p-6 relative overflow-hidden group">
+          <div class="absolute top-3 right-3 stamp-red px-3 py-1 text-xs font-mono opacity-80">
+            AUTOR TERVERIFIKASI
+          </div>
+
+          <div class="flex flex-col items-center text-center space-y-4 pt-4">
+            <div class="relative">
+              <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-blood-500 p-1 bg-darkvoid">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80" 
+                     alt="Foto Penulis" class="w-full h-full object-cover rounded-full filter grayscale contrast-125 group-hover:grayscale-0 transition duration-500">
+              </div>
+              <div class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blood-600 border-2 border-darkvoid flex items-center justify-center text-white text-xs">
+                <i class="fa-solid fa-pen-nib"></i>
+              </div>
+            </div>
+
+            <div>
+              <h2 class="font-cinzel text-2xl font-bold text-white" id="displayAuthorName">Penulis Fiksi Horor</h2>
+              <p class="text-xs font-mono text-red-400 mt-1">Pengarang & Pencipta Semesta Kriptid</p>
+            </div>
+
+            <!-- Author Stats -->
+            <div class="grid grid-cols-3 gap-2 w-full pt-4 border-t border-gray-800 text-center font-mono">
+              <div class="bg-darkvoid/60 p-2 rounded border border-gray-800">
+                <div class="text-lg font-bold text-red-500" id="statWorks">12</div>
+                <div class="text-[10px] text-gray-500">KARYA CERITA</div>
+              </div>
+              <div class="bg-darkvoid/60 p-2 rounded border border-gray-800">
+                <div class="text-lg font-bold text-red-500" id="statCryptids">4</div>
+                <div class="text-[10px] text-gray-500">KRIPTID</div>
+              </div>
+              <div class="bg-darkvoid/60 p-2 rounded border border-gray-800">
+                <div class="text-lg font-bold text-amber-500">1992+</div>
+                <div class="text-[10px] text-gray-500">LORE TAHUN</div>
+              </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="flex gap-3 pt-2">
+              <a href="#" class="w-8 h-8 rounded bg-gray-800 hover:bg-blood-600 text-gray-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fa-brands fa-x-twitter"></i></a>
+              <a href="#" class="w-8 h-8 rounded bg-gray-800 hover:bg-blood-600 text-gray-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fa-brands fa-instagram"></i></a>
+              <a href="#" class="w-8 h-8 rounded bg-gray-800 hover:bg-blood-600 text-gray-300 hover:text-white flex items-center justify-center text-xs transition"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Author Biography Right -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center gap-2 text-xs font-mono text-red-500">
+            <i class="fa-solid fa-folder-open"></i> DOSSIER BIOGRAFI PENULIS
+          </div>
+          <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-white">
+            Menciptakan Mitos & Ketakutan dari Bayang-Bayang Realitas
+          </h2>
+          <div class="space-y-3 text-sm text-gray-300 leading-relaxed font-sans">
+            <p>
+              Halo! Saya adalah seorang penulis cerita fiksi spekulatif dan horor. Minat terbesar saya terletak pada eksplorasi mitologi modern, cryptid lore, legenda perkotaan, dan laporan naratif bernuansa dokumen rahasia (dossier style).
+            </p>
+            <p>
+              Melalui website ini, saya mengumpulkan dan mendokumentasikan setiap makhluk, entitas, dan kisah fiksi yang saya ciptakan. Anda dapat membaca spesifikasi detail, catatan saksi mata, hingga kronologi kejadian mistis yang melingkupi tiap-tiap karakter.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-lg bg-darkvoid/80 border-l-4 border-blood-500 font-mono text-xs text-gray-400">
+            <i class="fa-solid fa-quote-left text-red-500 mr-2"></i>
+            "Ketakutan tertua dan terkuat manusia adalah ketakutan akan hal yang tidak diketahui." — H.P. Lovecraft
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- FEATURED DOSSIER: RAWNG SHOWCASE -->
+    <section id="featured" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div>
+          <span class="text-xs font-mono text-red-500 tracking-widest uppercase block">KASUS UNGGULAN #01</span>
+          <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-white">Dossier Utama: RAWNG (ラウング)</h2>
+        </div>
+        <span class="px-3 py-1 bg-red-950/80 border border-red-700 text-red-400 font-mono text-xs rounded">STATUS: SANGAT BAHAYA</span>
+      </div>
+
+      <!-- Featured Card Container -->
+      <div class="bg-dossier border border-blood-600/40 rounded-2xl p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-blood-800/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Left Column: Creature Image -->
+        <div class="lg:col-span-5 flex flex-col items-center justify-center">
+          <div class="relative w-full rounded-xl overflow-hidden border border-gray-700 bg-black group red-glow">
+            <img id="featuredImage" src="https://lh3.googleusercontent.com/d/1yA0p19G29JqH36Bf-N-J3R2XwJ3dK6W_" 
+                 alt="RAWNG Creature Illustration" 
+                 onerror="this.onerror=null; this.src='https://placehold.co/600x800/111622/ef4444?text=RAWNG+DOSSIER+IMAGE';"
+                 class="w-full h-auto object-cover max-h-[500px] transition duration-700 group-hover:scale-105">
+            
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 font-mono text-xs text-gray-300">
+              <div class="flex justify-between items-center">
+                <span>REPRESENTASI ARTISTIK</span>
+                <span class="text-red-400">48 GIGI • TINGGI 215 CM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Specs & Narrative Excerpt -->
+        <div class="lg:col-span-7 space-y-6 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+              <div>
+                <h3 class="font-cinzel text-3xl font-bold text-white">RAWNG (ラウング)</h3>
+                <p class="font-mono text-xs text-gray-400">Penguasa Hutan Gunma • Terakhir Terlihat: 20 Oktober 1992</p>
+              </div>
+              <div class="stamp-red px-3 py-1 text-xs">RAHASIA</div>
+            </div>
+
+            <!-- Stats Table Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-xs">
+              <div class="bg-cardbg p-3 rounded border border-gray-800">
+                <span class="text-gray-500 block">TINGGI</span>
+                <span class="text-white font-bold text-sm">215 cm</span>
+              </div>
+              <div class="bg-cardbg p-3 rounded border border-gray-800">
+                <span class="text-gray-500 block">KECEPATAN MAKS</span>
+                <span class="text-red-400 font-bold text-sm">45.57 km/jam</span>
+              </div>
+              <div class="bg-cardbg p-3 rounded border border-gray-800">
+                <span class="text-gray-500 block">HABITAT</span>
+                <span class="text-white font-bold text-sm">Pegunungan Gunma</span>
+              </div>
+              <div class="bg-cardbg p-3 rounded border border-gray-800">
+                <span class="text-gray-500 block">CIRI KHAS</span>
+                <span class="text-amber-400 font-bold text-sm">48 Gigi, Lengan Kiri Putus</span>
+              </div>
+              <div class="bg-cardbg p-3 rounded border border-gray-800 col-span-2 sm:col-span-2">
+                <span class="text-gray-500 block">PAAN DAN DIET</span>
+                <span class="text-gray-300">Ternak (Domba, Babi), Babi Hutan Liar</span>
+              </div>
+            </div>
+
+            <!-- Narrative Excerpt Box -->
+            <div class="space-y-2 bg-darkvoid/80 p-4 rounded-xl border border-gray-800 text-sm">
+              <div class="text-xs font-mono text-red-400 flex items-center gap-2">
+                <i class="fa-solid fa-book-open"></i> KUTIPAN LAPORAN SAKSI MATA:
+              </div>
+              <p class="italic text-gray-300 leading-relaxed font-serif text-xs md:text-sm">
+                "Pukul 23.40, 20 Oktober 1992. Suara gaduh membangungkan Takimura. Ketika ia membuka pintu kandang, sesosok makhluk setinggi 215 cm sedang melahap dombanya. Mulutnya berlumuran darah membentuk senyuman mengerikan memperlihatkan 48 gigi yang tersusun rapi..."
+              </p>
+            </div>
+          </div>
+
+          <!-- Read Full Story / Trigger Modal -->
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="openDetailModal('rawng')" class="bg-blood-600 hover:bg-blood-500 text-white font-mono text-xs px-5 py-3 rounded-lg font-bold flex items-center gap-2 border border-red-500 transition">
+              <i class="fa-solid fa-file-lines"></i> Buka Berkas Lengkap Rawng
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- INTERACTIVE CHARACTER CATALOG (DOSSIER VAULT) -->
+    <section id="catalog" class="space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+        <div>
+          <span class="text-xs font-mono text-red-500 tracking-widest uppercase block">KATALOG SPESIMEN & ENTITAS</span>
+          <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-white">Arsip Karakter & Kriptid</h2>
+        </div>
+        <div class="text-xs font-mono text-gray-400">
+          Menampilkan <span id="displayedCount" class="text-red-400 font-bold">0</span> spesimen tersimpan
+        </div>
+      </div>
+
+      <!-- Creatures Grid Container -->
+      <div id="creaturesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards generated dynamically via JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-20 border-t border-gray-800 bg-darkvoid/90 py-10 px-4 text-center font-mono text-xs text-gray-500 relative z-20">
+    <div class="max-w-7xl mx-auto space-y-4">
+      <div class="flex items-center justify-center gap-2 text-red-500 font-cinzel font-bold text-base">
+        <i class="fa-solid fa-biohazard"></i> ARSIP KRIPTID FIKSI
+      </div>
+      <p class="max-w-xl mx-auto text-gray-400">
+        Semua karakter, nama, dan narasi di dalam website ini adalah karya fiksi rekaan Penulis.
+      </p>
+      <p class="text-[10px] text-gray-600">
+        &copy; <span id="yearSpan"></span> Universe Dark Fiction. Hak Cipta Dilindungi Undang-Undang.
+      </p>
+    </div>
+  </footer>
+
+
+  <!-- MODAL: CHARACTER DETAIL / DOSSIER VIEW -->
+  <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-dossier border border-gray-700 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 space-y-6 relative text-gray-200 shadow-2xl">
+      <!-- Close Button -->
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-red-600 text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="border-b border-gray-800 pb-4 space-y-2">
+        <div class="inline-block px-3 py-1 bg-red-950 border border-red-700 text-red-400 font-mono text-[10px] rounded" id="modalCategory">
+          KRIPTID / UMA
+        </div>
+        <h2 class="font-cinzel text-3xl font-bold text-white" id="modalTitle">Nama Karakter</h2>
+        <p class="font-mono text-xs text-gray-400" id="modalSubtitle">Asal / Habitat: -</p>
+      </div>
+
+      <!-- Image & Specs Split -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="rounded-lg overflow-hidden border border-gray-700 bg-black">
+          <img id="modalImage" src="" alt="" class="w-full h-64 object-cover">
+        </div>
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-cardbg p-3 rounded border border-gray-800">
+            <span class="text-gray-500 block">TINGGI & FISIK</span>
+            <span class="text-white font-bold" id="modalStats">-</span>
+          </div>
+          <div class="bg-cardbg p-3 rounded border border-gray-800">
+            <span class="text-gray-500 block">TINGKAT BAHAYA</span>
+            <span class="font-bold text-red-400" id="modalDanger">-</span>
+          </div>
+          <div class="bg-cardbg p-3 rounded border border-gray-800">
+            <span class="text-gray-500 block">CIRI KHAS</span>
+            <span class="text-gray-300" id="modalTraits">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Narrative & Full Bio -->
+      <div class="space-y-3 pt-2">
+        <h3 class="font-cinzel text-lg font-bold text-red-400 border-b border-gray-800 pb-1">Deskripsi & Laporan Lengkap</h3>
+        <p class="text-sm text-gray-300 leading-relaxed font-sans" id="modalDescription">
+          Deskripsi lengkap akan muncul di sini.
+        </p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-4 border-t border-gray-800 flex justify-end">
+        <button onclick="closeDetailModal()" class="px-5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 font-mono text-xs rounded transition">
+          Tutup Berkas
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL: ADD NEW CHARACTER FORM -->
+  <div id="addModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-dossier border border-blood-600 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 space-y-6 relative text-gray-200 shadow-2xl">
+      <!-- Close Button -->
+      <button onclick="closeAddModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-red-600 text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="border-b border-gray-800 pb-3">
+        <h2 class="font-cinzel text-2xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-folder-plus text-red-500"></i> Tambah Karakter / Kriptid Baru
+        </h2>
+        <p class="font-mono text-xs text-gray-400 mt-1">
+          Formulir mandiri tanpa perlu koding. Karakter akan langsung tersimpan di browser Anda.
+        </p>
+      </div>
+
+      <!-- Form Inputs -->
+      <form id="addMonsterForm" onsubmit="handleFormSubmit(event)" class="space-y-4 font-mono text-xs">
+        <div>
+          <label class="block text-gray-400 mb-1">Nama Karakter / Makhluk *</label>
+          <input type="text" id="inputName" required placeholder="Contoh: Hantu Bersiul Pegunungan Haruna" 
+                 class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-gray-400 mb-1">Kategori *</label>
+            <select id="inputCategory" class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+              <option value="Kriptid">Kriptid / UMA</option>
+              <option value="Monster">Monster / Entitas</option>
+              <option value="Urban Legend">Legenda Perkotaan</option>
+              <option value="Lore">Lore & Artefak</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-400 mb-1">Tingkat Bahaya *</label>
+            <select id="inputDanger" class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+              <option value="EXTREME">EXTREME (Sangat Fatal)</option>
+              <option value="HIGH">HIGH (Tinggi)</option>
+              <option value="MODERATE">MODERATE (Sedang)</option>
+              <option value="LOW">LOW (Rendah)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-gray-400 mb-1">Habitat / Asal *</label>
+            <input type="text" id="inputHabitat" required placeholder="Contoh: Hutan Gunung Haruna" 
+                   class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+          </div>
+          <div>
+            <label class="block text-gray-400 mb-1">Ukuran / Stats *</label>
+            <input type="text" id="inputStats" required placeholder="Contoh: Tinggi 180 cm / Lincah" 
+                   class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-400 mb-1">Ciri Khusus singkat</label>
+          <input type="text" id="inputTraits" placeholder="Contoh: Mengeluarkan siulan melengking di malam hari" 
+                 class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+        </div>
+
+        <div>
+          <label class="block text-gray-400 mb-1">URL Gambar Ilustrasi (Opsional)</label>
+          <input type="url" id="inputImage" placeholder="https://..." 
+                 class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500">
+        </div>
+
+        <div>
+          <label class="block text-gray-400 mb-1">Deskripsi / Cerita Latar Belakang *</label>
+          <textarea id="inputDescription" rows="4" required placeholder="Tuliskan cerita latar belakang, saksi mata, atau lore karakter ini..." 
+                    class="w-full px-3 py-2 bg-darkvoid border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-red-500 font-sans text-sm"></textarea>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-3">
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-blood-600 hover:bg-blood-500 text-white font-bold rounded border border-red-500 flex items-center gap-2">
+            <i class="fa-solid fa-save"></i> Simpan Karakter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // INITIAL CREATURE DATA (Default Database)
+    const initialCreatures = [
+      {
+        id: 'rawng',
+        name: 'RAWNG (ラウング)',
+        category: 'Kriptid',
+        habitat: 'Pegunungan Gunma, Jepang',
+        stats: 'Tinggi: 215 cm | Kecepatan: 45.57 km/jam',
+        traits: '48 gigi rapi, lengan kiri putus, kulit hitam kelam',
+        danger: 'EXTREME',
+        image: 'https://lh3.googleusercontent.com/d/1yA0p19G29JqH36Bf-N-J3R2XwJ3dK6W_',
+        description: 'RAWNG adalah entitas humanoid berukuran 215 cm yang dilaporkan menghuni kawasan pegunungan Gunma. Makhluk ini memiliki kepala bulat, kulit hitam kelam, serta mulut lebar berisi 48 gigi yang selalu tampak tersenyum. Salah satu ciri uniknya adalah lengan kirinya yang terputus tanpa alasan jelas. Dikenal memangsa domba, babi ternak, hingga babi hutan.'
+      },
+      {
+        id: 'haruna-phantom',
+        name: 'The Whistling Phantom of Haruna',
+        category: 'Urban Legend',
+        habitat: 'Danau & Gunung Haruna',
+        stats: 'Tinggi: Tak Menentu | Suara: 120 dB',
+        traits: 'Jubah lusuh, siulan bernada minor, mata menyala kuning',
+        danger: 'HIGH',
+        image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+        description: 'Bayangan misterius berdengung yang muncul di sekitar Danau Haruna pada malam berkabut. Menurut kesaksian pendaki, muncul suara siulan melengking sebelum korban merasakan disorientasi total dan tersesat di dalam hutan.'
+      },
+      {
+        id: 'swamp-weaver',
+        name: 'Penjalin Rawa Akagi',
+        category: 'Monster',
+        habitat: 'Rawa Lemba Akagi',
+        stats: 'Panjang: 400 cm | Berat: ~300 kg',
+        traits: 'Tubuh mirip laba-laba bertangan manusia, sarat benang hitam',
+        danger: 'MODERATE',
+        image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+        description: 'Makhluk nokturnal berkaki banyak yang menjerat mangsanya menggunakan benang lengket berwarna gelap. Memburu hewan liar dan penjelajah yang melanggar batas rawa di malam hari.'
+      }
+    ];
+
+    let creatures = [];
+
+    // Initialize App & LocalStorage
+    window.onload = function() {
+      // Set Copyright Year
+      document.getElementById('yearSpan').textContent = new Date().getFullYear();
+
+      // Load saved creatures or fallback
+      const saved = localStorage.getItem('author_cryptid_database');
+      if (saved) {
+        try {
+          creatures = JSON.parse(saved);
+        } catch (e) {
+          creatures = initialCreatures;
+        }
+      } else {
+        creatures = initialCreatures;
+        saveToLocalStorage();
+      }
+
+      renderCatalog(creatures);
+      updateStats();
+      initFogCanvas();
+    };
+
+    function saveToLocalStorage() {
+      localStorage.setItem('author_cryptid_database', JSON.stringify(creatures));
+    }
+
+    function updateStats() {
+      document.getElementById('statCryptids').textContent = creatures.length;
+      document.getElementById('statWorks').textContent = creatures.length + 8;
+    }
+
+    // Render Cards in Catalog Grid
+    function renderCatalog(items) {
+      const grid = document.getElementById('creaturesGrid');
+      const countLabel = document.getElementById('displayedCount');
+      grid.innerHTML = '';
+      countLabel.textContent = items.length;
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-gray-500 font-mono">
+            <i class="fa-solid fa-box-open text-3xl mb-2 block"></i>
+            Tidak ada berkas spesimen yang cocok dengan pencarian Anda.
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'bg-cardbg border border-gray-800 rounded-xl overflow-hidden hover:border-red-600/60 transition duration-300 flex flex-col justify-between group red-glow-hover';
+
+        const dangerBg = c.danger === 'EXTREME' ? 'bg-red-950 text-red-400 border-red-700' :
+                         c.danger === 'HIGH' ? 'bg-amber-950 text-amber-400 border-amber-700' :
+                         'bg-blue-950 text-blue-400 border-blue-700';
+
+        const imgUrl = c.image || 'https://placehold.co/600x400/111622/ef4444?text=' + encodeURIComponent(c.name);
+
+        card.innerHTML = `
+          <div>
+            <!-- Card Image Box -->
+            <div class="relative h-48 overflow-hidden bg-black">
+              <img src="${imgUrl}" alt="${c.name}" 
+                   onerror="this.onerror=null; this.src='https://placehold.co/600x400/111622/ef4444?text=IMAGE+NOT+FOUND';"
+                   class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+              <div class="absolute top-3 left-3 px-2 py-0.5 rounded font-mono text-[10px] border ${dangerBg}">
+                BAHAYA: ${c.danger || 'UNKNOWN'}
+              </div>
+              <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 font-mono text-[10px] text-gray-300">
+                ${c.category}
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-5 space-y-3">
+              <h3 class="font-cinzel text-xl font-bold text-white group-hover:text-red-400 transition">${c.name}</h3>
+              <p class="font-mono text-xs text-gray-400 flex items-center gap-1">
+                <i class="fa-solid fa-location-dot text-red-500"></i> ${c.habitat}
+              </p>
+              <p class="text-xs text-gray-300 line-clamp-3 font-sans leading-relaxed">
+                ${c.description}
+              </p>
+            </div>
+          </div>
+
+          <!-- Card Footer Button -->
+          <div class="px-5 pb-5 pt-2">
+            <button onclick="openDetailModal('${c.id}')" class="w-full py-2 bg-darkvoid hover:bg-blood-600 text-gray-300 hover:text-white font-mono text-xs rounded border border-gray-700 hover:border-red-500 flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-folder-open"></i> Buka Berkas Lengkap
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Filter & Search Logic
+    function filterCatalog() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const cat = document.getElementById('categoryFilter').value;
+
+      const filtered = creatures.filter(c => {
+        const matchesQuery = c.name.toLowerCase().includes(query) ||
+                             c.habitat.toLowerCase().includes(query) ||
+                             c.description.toLowerCase().includes(query);
+        const matchesCat = (cat === 'ALL') || (c.category === cat);
+        return matchesQuery && matchesCat;
+      });
+
+      renderCatalog(filtered);
+    }
+
+    // Modal Control: Detail Modal
+    function openDetailModal(id) {
+      const creature = creatures.find(c => c.id === id);
+      if (!creature) return;
+
+      document.getElementById('modalTitle').textContent = creature.name;
+      document.getElementById('modalCategory').textContent = creature.category.toUpperCase();
+      document.getElementById('modalSubtitle').textContent = 'Habitat / Asal: ' + creature.habitat;
+      document.getElementById('modalStats').textContent = creature.stats;
+      document.getElementById('modalDanger').textContent = creature.danger;
+      document.getElementById('modalTraits').textContent = creature.traits || '-';
+      document.getElementById('modalDescription').textContent = creature.description;
+
+      const imgUrl = creature.image || 'https://placehold.co/600x400/111622/ef4444?text=' + encodeURIComponent(creature.name);
+      document.getElementById('modalImage').src = imgUrl;
+
+      const modal = document.getElementById('detailModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detailModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // Modal Control: Add Monster Modal
+    function openAddModal() {
+      const modal = document.getElementById('addModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeAddModal() {
+      const modal = document.getElementById('addModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // Handle Adding New Monster Dynamic Form
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const newCreature = {
+        id: 'custom-' + Date.now(),
+        name: document.getElementById('inputName').value,
+        category: document.getElementById('inputCategory').value,
+        danger: document.getElementById('inputDanger').value,
+        habitat: document.getElementById('inputHabitat').value,
+        stats: document.getElementById('inputStats').value,
+        traits: document.getElementById('inputTraits').value || 'Tidak Ada Data',
+        image: document.getElementById('inputImage').value,
+        description: document.getElementById('inputDescription').value
+      };
+
+      creatures.unshift(newCreature);
+      saveToLocalStorage();
+      renderCatalog(creatures);
+      updateStats();
+
+      document.getElementById('addMonsterForm').reset();
+      closeAddModal();
+    }
+
+    // Ambient Audio Simulation Logic
+    let isAudioPlaying = false;
+    let audioCtx = null;
+    let oscillator = null;
+
+    function toggleAmbientSound() {
+      const btnIcon = document.getElementById('soundIcon');
+      const btnText = document.getElementById('soundText');
+
+      if (!isAudioPlaying) {
+        // Start Low Drone Sound synth
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContext();
+          oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator.type = 'sawtooth';
+          oscillator.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A drone note
+          gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime); // Subtle volume
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.start();
+
+          isAudioPlaying = true;
+          btnIcon.className = 'fa-solid fa-volume-high text-red-500';
+          btnText.textContent = 'Audio: ON';
+        } catch (e) {
+          console.log('Audio disabled or not supported');
+        }
+      } else {
+        if (oscillator) oscillator.stop();
+        if (audioCtx) audioCtx.close();
+        isAudioPlaying = false;
+        btnIcon.className = 'fa-solid fa-volume-xmark text-gray-500';
+        btnText.textContent = 'Audio: OFF';
+      }
+    }
+
+    // Fog Animation Canvas Logic
+    function initFogCanvas() {
+      const canvas = document.getElementById('fogCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      const particles = [];
+      for (let i = 0; i < 25; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 150 + 100,
+          opacity: Math.random() * 0.05 + 0.02,
+          speedX: Math.random() * 0.4 - 0.2,
+          speedY: Math.random() * 0.2 - 0.1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < -p.radius) p.x = canvas.width + p.radius;
+          if (p.x > canvas.width + p.radius) p.x = -p.radius;
+          if (p.y < -p.radius) p.y = canvas.height + p.radius;
+          if (p.y > canvas.height + p.radius) p.y = -p.radius;
+
+          const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+          gradient.addColorStop(0, `rgba(139, 0, 0, ${p.opacity})`);
+          gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
